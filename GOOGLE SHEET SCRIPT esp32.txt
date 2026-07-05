@@ -1,0 +1,31 @@
+function doGet(e) {
+  var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+
+  // ✅ Add header row once
+  var headers = ["Name", "Entry/Exit", "RFID", "Date", "Time"];
+  var firstRow = sheet.getRange(1, 1, 1, headers.length).getValues()[0];
+  
+  if (firstRow.join("") === "") {  
+    sheet.getRange(1, 1, 1, headers.length).setValues([headers]);
+  }
+
+  if (!e || !e.parameter) {
+    return ContentService.createTextOutput(
+      JSON.stringify({status:"error", message:"No parameters received"})
+    ).setMimeType(ContentService.MimeType.JSON);
+  }
+
+  var name  = e.parameter.name  || "Unknown";
+  var entry = e.parameter.entry || "ENTRY";
+  var rfid  = e.parameter.rfid  || "";
+  var date  = e.parameter.date  || "";
+  var time  = e.parameter.time  || "";
+
+  // Row 2 onward holds data
+  var rowData = [name, entry, rfid, date, time];
+  sheet.appendRow(rowData);
+
+  return ContentService.createTextOutput(
+    JSON.stringify({status:"success", name, entry, rfid, date, time})
+  ).setMimeType(ContentService.MimeType.JSON);
+}
